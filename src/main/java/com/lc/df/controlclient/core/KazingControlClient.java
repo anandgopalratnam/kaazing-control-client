@@ -158,6 +158,11 @@ public class KazingControlClient
     }
     private void handleEvent(JsonNode eventNode){
 		String eventKey = eventNode.path("eventKey").asText("NOTSET");
+		String categoryKey = eventNode.path("meta").path("categoryKey").asText("NOTSET");
+		if (GlobalVariables.KAFKA_CONSUMER_CATEGORY_EXCLUSION_LIST.contains(categoryKey))
+		{
+			return;
+		}
 		if (Utils.acceptEventCreateMessage(eventNode)){
 			JsonNode newEventNode = Utils.applyEventCreateForEventsTopic(entityCache,eventNode);
 			String eventJson = Utils.getJsonString(newEventNode);
@@ -185,6 +190,11 @@ public class KazingControlClient
 
 	private void handleMarket(JsonNode marketNode){
 		String marketKey = marketNode.path("marketKey").asText("NOTSET");
+		String categoryKey = marketNode.path("meta").path("categoryKey").asText("NOTSET");
+		if (GlobalVariables.KAFKA_CONSUMER_CATEGORY_EXCLUSION_LIST.contains(categoryKey))
+		{
+			return;
+		}
 		if (Utils.acceptMarketCreateMessage(marketNode)){
 			String eventKey = marketNode.path("meta").path("eventKey").asText("NOTSET");
 			JsonNode eventSnapshot = Utils.getJsonNode(entityCache.getEvent(eventKey,null));
@@ -219,6 +229,11 @@ public class KazingControlClient
 	}
 	private void handleSelection(JsonNode selectionNode){
 		String selectionKey = selectionNode.path("selectionKey").asText("NOTSET");
+		String categoryKey = selectionNode.path("meta").path("categoryKey").asText("NOTSET");
+		if (GlobalVariables.KAFKA_CONSUMER_CATEGORY_EXCLUSION_LIST.contains(categoryKey))
+		{
+			return;
+		}
 		if (Utils.acceptSelectionCreateMessage(selectionNode)){
 			String marketKey = selectionNode.path("meta").path("marketKey").asText("NOTSET");
 			JsonNode marketSnapshot = Utils.getJsonNode(entityCache.getMarket(marketKey,null));

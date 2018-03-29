@@ -1,5 +1,7 @@
 package com.lc.df.controlclient.utils;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -16,6 +18,7 @@ public class GlobalVariables
 	public static String KAFKA_CONSUMER_KEYDESERIALIZER = null;
 	public static String KAFKA_CONSUMER_VALUEDESERIALIZER = null;
 	public static String KAFKA_CONSUMER_FILTER_KEYLIST = null;
+	public static ArrayList<String> KAFKA_CONSUMER_CATEGORY_EXCLUSION_LIST = new ArrayList<String>();
 	public static Map<String,String> KAFKA_CONSUMER_ADDITONAL_PROPS = new HashMap<String, String>();
 
 	public static String KAFKA_CACHE_TOPICS = null;
@@ -87,6 +90,11 @@ public class GlobalVariables
 			Logger.logInfoMessage(" Kafka Consumer Additional Properties ["+KAFKA_CONSUMER_ADDITONAL_PROPS+"]");
 			KAFKA_CONSUMER_FILTER_KEYLIST = PropertiesUtil.getProperty("kafka.consumer.filter.keylist");
 			Logger.logInfoMessage("Set value for kafka.consumer.filter.keylist = ["+KAFKA_CONSUMER_FILTER_KEYLIST+"]");
+			KAFKA_CONSUMER_CATEGORY_EXCLUSION_LIST.addAll(Arrays.asList(PropertiesUtil.getProperty("kafka.consumer" +
+							".category-exclusion-list","NONE")));
+			Logger.logInfoMessage("Set value for kafka.consumer" +
+					".category-exclusion-list = ["+KAFKA_CONSUMER_CATEGORY_EXCLUSION_LIST+"]");
+
 
 			KAFKA_CACHE_TOPICS = PropertiesUtil.getProperty("kafka.consumer.cache.topics");
 			Logger.logInfoMessage("Set value for kafka.consumer.cache.topics = ["+KAFKA_CACHE_TOPICS+"]");

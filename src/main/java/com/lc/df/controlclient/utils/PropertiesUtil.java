@@ -51,6 +51,14 @@ public class PropertiesUtil
 	{
 		return properties.getProperty(key);
 	}
+	public static String getProperty(String key,String defaultValue)
+	{
+		String value = properties.getProperty(key);
+		if (value == null){
+			return defaultValue;
+		}
+		return value;
+	}
 
 	public static Map<String,String> getProperties(String prefix)
 	{

@@ -6,17 +6,27 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.lc.df.controlclient.core.EntityCache;
+import com.lc.df.controlclient.core.Parents;
 
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map.Entry;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
 public class Utils {
     private final static ObjectMapper mapper = new ObjectMapper();
 
-    private static final Pattern MARKET_KEY_PARENTS_PATTERN = Pattern.compile(".+:m.(\\d+)");
+//    public static final Pattern MARKET_PATTERN = Pattern.compile("m.(\\d+)");
+//
+//    public static final Pattern EVENT_PATTERN = Pattern.compile("e.(\\d+)");
+//
+//    public static final Pattern CATEGORY_PATTERN = Pattern.compile("c.(\\d+)");
+//
+//    public static final Pattern CLASS_PATTERN = Pattern.compile("cl.(\\d+)");
+//
+//    public static final Pattern TYPE_PATTERN = Pattern.compile("t.(\\d+)");
 
     static {
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
@@ -30,7 +40,16 @@ public class Utils {
         }
 
     }
-
+    public static Long getLong(String number) {
+        try {
+            if (isValidString(number)) {
+                return Long.parseLong(number);
+            }
+        } catch (Exception e) {
+            /* Do Nothing */
+        }
+        return null;
+    }
     public static boolean acceptEventMessage(JsonNode sportsbookValue) {
         return !sportsbookValue.path("event").isMissingNode();
     }
@@ -64,35 +83,45 @@ public class Utils {
 
     public static JsonNode applyEventCreateForEventsTopic(
             EntityCache entityCache,
-            JsonNode eventNode) {
-        String categoryJson = entityCache.getCategory(eventNode.path("meta").path("categoryKey")
-                .asText("NOTSET"), null);
+            JsonNode eventNode,
+            Parents parents) {
+
+        String typeJson = entityCache.getType(parents.getTypeKey(), null);
+        JsonNode typeSnapshot = getJsonNode(typeJson);
+        String typeName = "";
+        if (typeSnapshot != null) {
+            typeName = typeSnapshot.path("type").path("typeName").asText();
+            if (parents.getClassKey() == null){
+                String typeParents = typeSnapshot.path("type").path("meta").path("parents").asText("cl.NOTSET");
+                parents.setClassKey(getLong(typeParents.substring(3)));
+            }
+        }
+
+        String classJson = entityCache.getClass(parents.getClassKey(), null);
+        JsonNode classSnapshot = getJsonNode(classJson);
+        String className = "";
+        if (classSnapshot != null) {
+            className = classSnapshot.path("class").path("className").asText();
+            if (parents.getCategoryKey() == null){
+                String classParents = typeSnapshot.path("class").path("meta").path("parents").asText("c.NOTSET");
+                parents.setClassKey(getLong(classParents.substring(2)));
+            }
+        }
+
+        String categoryJson = entityCache.getCategory(parents.getCategoryKey(),null);
         JsonNode categorySnapshot = getJsonNode(categoryJson);
         String categoryName = "";
         if (categorySnapshot != null) {
             categoryName = categorySnapshot.path("category").path("categoryName").asText();
         }
-        String classJson = entityCache.getClass(eventNode.path("meta").path("classKey")
-                .asText("NOTSET"), null);
-        JsonNode classSnapshot = getJsonNode(classJson);
-        String className = "";
-        if (classSnapshot != null) {
-            className = classSnapshot.path("class").path("className").asText();
-        }
-        String typeJson = entityCache.getType(eventNode.path("meta").path("typeKey")
-                .asText("NOTSET"), null);
-        JsonNode typeSnapshot = getJsonNode(typeJson);
-        String typeName = "";
-        if (typeSnapshot != null) {
-            typeName = typeSnapshot.path("type").path("typeName").asText();
-        }
 
-        String eventKey = eventNode.path("eventKey").asText();
+
+        Long eventKey = eventNode.path("eventKey").asLong();
         // Create a new event snapshot
         return mapper.createObjectNode()
                 .set("event", mapper.createObjectNode()
                         .put("eventKey", eventKey)
-                        .put("displayOrder", eventNode.path("displayOrder").asText())
+                        .put("displayOrder", eventNode.path("displayOrder").asInt())
                         .put("eventStatus", eventNode.path("eventStatus").asText())
                         .put("displayStatus", eventNode.path("displayStatus").asText())
                         .put("eventDateTime", eventNode.path("eventDateTime").asText())
@@ -144,11 +173,11 @@ public class Utils {
                 Object obj = eventSnapshot.path("event");
                 if (obj instanceof ObjectNode) {
                     final ObjectNode snapshotFields = (ObjectNode) obj;
-                    if (!"meta".equals(field.getKey())) {
-                        if (!"eventKey".equals(field.getKey())) {
+                    if (!"meta".equals(field.getKey()) && !"markets".equals(field.getKey())) {
+//                        if (!"eventKey".equals(field.getKey())) {
                             snapshotFields.set(field.getKey(), field.getValue());
                             snapshotFields.put("ts", getTSString(eventNode));
-                        }
+//                        }
                     }
                 }
             }
@@ -190,7 +219,7 @@ public class Utils {
     }
 
     public static JsonNode applyMarketCreateForEventsTopic(JsonNode marketNode, JsonNode eventSnapshot) {
-        String marketKey = marketNode.path("marketKey").asText(null);
+        Long marketKey = marketNode.path("marketKey").asLong();
         if (eventSnapshot != null) {
             JsonNode eventSnapshotNode = eventSnapshot.path("event");
             JsonNode markets = eventSnapshotNode.path("markets");
@@ -202,7 +231,7 @@ public class Utils {
                 int marketIndex = -1;
                 for (int i = 0; i < snapshotMarkets.size(); i++) {
                     JsonNode m = snapshotMarkets.get(i);
-                    if (m.path("marketKey").asText(null).equals(marketKey)) {
+                    if (m.path("marketKey").asLong() == marketKey) {
                         marketIndex = i;
                         break;
                     }
@@ -215,6 +244,7 @@ public class Utils {
 
                 snapshotMarket
                         .put("marketKey", marketKey)
+                        .put("marketName",marketNode.path("marketName").asText(""))
                         .put("displayOrder", marketNode.path("displayOrder").asLong(0));
 
                 if (marketIndex == -1) {
@@ -234,7 +264,7 @@ public class Utils {
         // Create a new market snapshot
         return mapper.createObjectNode()
                 .set("market", mapper.createObjectNode()
-                        .put("marketKey", marketNode.path("marketKey").asText())
+                        .put("marketKey", marketNode.path("marketKey").asLong())
                         .put("marketName", marketNode.path("marketName").asText())
                         .put("displayOrder", marketNode.path("displayOrder").asLong(0))
                         .put("ts", getTSString(marketNode))
@@ -252,11 +282,11 @@ public class Utils {
                 Object obj = marketSnapshot.path("market");
                 if (obj instanceof ObjectNode) {
                     final ObjectNode snapshotFields = (ObjectNode) obj;
-                    if (!"meta".equals(field.getKey())) {
-                        if (!"marketKey".equals(field.getKey())) {
+                    if (!"meta".equals(field.getKey()) && !"selections".equals(field.getKey())) {
+//                        if (!"marketKey".equals(field.getKey())) {
                             snapshotFields.set(field.getKey(), field.getValue());
                             snapshotFields.put("ts", getTSString(marketNode));
-                        }
+//                        }
                     }
                 }
             }
@@ -268,7 +298,7 @@ public class Utils {
     public static JsonNode applySelectionCreateForMarketsTopic(
             JsonNode selectionNode,
             JsonNode marketSnapshot) {
-        String selectionKey = selectionNode.path("selectionKey").asText(null);
+        Long selectionKey = selectionNode.path("selectionKey").asLong();
         if (marketSnapshot != null) {
             JsonNode marketSnapshotNode = marketSnapshot.path("market");
             JsonNode selections = marketSnapshotNode.path("selections");
@@ -281,7 +311,7 @@ public class Utils {
                 for (int i = 0; i < snapshotSelections.size(); i++) {
                     JsonNode s = snapshotSelections.get(i);
 
-                    if (s.path("selectionKey").asText(null).equals(selectionKey)) {
+                    if (s.path("selectionKey").asLong() == selectionKey) {
                         selectionIndex = i;
                         break;
                     }
@@ -311,7 +341,7 @@ public class Utils {
         // Create a new selection snapshot
         ObjectNode newSelectionSnapshot = (ObjectNode) mapper.createObjectNode()
                 .set("selection", mapper.createObjectNode()
-                        .put("selectionKey", selectionNode.path("selectionKey").asText())
+                        .put("selectionKey", selectionNode.path("selectionKey").asLong())
                         .put("selectionName", selectionNode.path("selectionName").asText())
                         .put("selectionStatus", selectionNode.path("selectionStatus").asText())
                         .put("displayStatus", selectionNode.path("displayStatus").asText())
@@ -366,6 +396,40 @@ public class Utils {
             }
         }
         return null;
+    }
+    public static Parents getParents(String parents){
+        Parents p = new Parents();
+        try {
+//            Matcher matcher = pattern.matcher(parents);
+//            if (matcher.matches())
+//            {
+//                p.setCategoryKey(Long.parseLong(matcher.group(1)));
+//                p.setClassKey(Long.parseLong(matcher.group(2)));
+//                p.setTypeKey(Long.parseLong(matcher.group(3)));
+//                if (matcher.groupCount() > 3){
+//                    p.setEventKey(Long.parseLong(matcher.group(4)));
+//                }
+//                if (matcher.groupCount() > 4){
+//                    p.setMarketKey(Long.parseLong(matcher.group(5)));
+//                }
+            String[] pArray = parents.split(":");
+            for (int i = 0; i < pArray.length; i++) {
+                if (pArray[i].startsWith("cl.")){
+                    p.setClassKey(getLong(pArray[i].substring(3)));
+                }else if (pArray[i].startsWith("c.")){
+                    p.setCategoryKey(getLong(pArray[i].substring(2)));
+                }else if (pArray[i].startsWith("t.")){
+                    p.setTypeKey(getLong(pArray[i].substring(2)));
+                }else if (pArray[i].startsWith("e.")){
+                    p.setEventKey(getLong(pArray[i].substring(2)));
+                }else if (pArray[i].startsWith("m.")){
+                    p.setMarketKey(getLong(pArray[i].substring(2)));
+                }
+            }
+        } catch (Exception e) {
+            Logger.logErrorMessage("Error Deriving Parents.",e);
+        }
+        return p;
     }
 
     public static String getJsonString(JsonNode jsonNode) {

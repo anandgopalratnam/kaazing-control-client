@@ -10,28 +10,29 @@ import java.util.Map;
  */
 public class EntityCache {
 
-    private Map<String,String> categoryCache = new HashMap<String, String>();
-    private Map<String,String> classCache = new HashMap<String, String>();
-    private Map<String,String> typeCache = new HashMap<String, String>();
-    private Map<String,String> eventCache = new HashMap<String, String>();
-    private Map<String,String> marketCache = new HashMap<String, String>();
-    private Map<String,String> selectionCache = new HashMap<String, String>();
+    private Map<Long,String> categoryCache = new HashMap<Long, String>();
+    private Map<Long,String> classCache = new HashMap<Long, String>();
+    private Map<Long,String> typeCache = new HashMap<Long, String>();
+    private Map<Long,String> eventCache = new HashMap<Long, String>();
+    private Map<Long,String> marketCache = new HashMap<Long, String>();
+    private Map<Long,String> selectionCache = new HashMap<Long, String>();
 
-    public String getCategory(String key,String defaultValue){
+    public String getCategory(Long key,String defaultValue){
         synchronized (categoryCache){
-            String category = categoryCache.get(key);
-            if (category == null){
-                return defaultValue;
+            if (key != null){
+                String category = categoryCache.get(key);
+                if (category == null){
+                    return defaultValue;
+                }
+                return category;
             }
-            return category;
+            return null;
         }
     }
-    public void setCategory(String key,String category){
+    public void setCategory(Long key,String category){
         synchronized (categoryCache) {
             if (category == null){
-//                Logger.logInfoMessage("Removing key ["+key+"] From Category Cache Size["+categoryCache.size()+"]");
                 categoryCache.remove(key);
-//                Logger.logInfoMessage("Category Cache Size["+categoryCache.size()+"] after removal");
             }
             else {
                 categoryCache.put(key,category);
@@ -39,21 +40,22 @@ public class EntityCache {
         }
     }
 
-    public String getClass(String key,String defaultValue){
+    public String getClass(Long key,String defaultValue){
         synchronized (classCache){
-            String clazz = classCache.get(key);
-            if (clazz == null){
-                return defaultValue;
+            if (key != null){
+                String clazz = classCache.get(key);
+                if (clazz == null){
+                    return defaultValue;
+                }
+                return clazz;
             }
-            return clazz;
+            return null;
         }
     }
-    public void setClass(String key,String clazz){
+    public void setClass(Long key,String clazz){
         synchronized (classCache) {
             if (clazz == null){
-//                Logger.logInfoMessage("Removing key ["+key+"] From Class Cache Size["+classCache.size()+"]");
                 classCache.remove(key);
-//                Logger.logInfoMessage("Class Cache Size["+classCache.size()+"] after removal");
             }
             else {
                 classCache.put(key,clazz);
@@ -61,21 +63,22 @@ public class EntityCache {
         }
     }
 
-    public String getType(String key,String defaultValue){
+    public String getType(Long key,String defaultValue){
         synchronized (typeCache){
-            String type = typeCache.get(key);
-            if (type == null){
-                return defaultValue;
+            if (key !=  null){
+                String type = typeCache.get(key);
+                if (type == null){
+                    return defaultValue;
+                }
+                return type;
             }
-            return type;
+            return null;
         }
     }
-    public void setType(String key,String type){
+    public void setType(Long key,String type){
         synchronized (typeCache) {
             if (type == null){
-//                Logger.logInfoMessage("Removing key ["+key+"] From Type Cache Size["+typeCache.size()+"]");
                 typeCache.remove(key);
-//                Logger.logInfoMessage("Type Cache Size["+typeCache.size()+"] after removal");
             }
             else {
                 typeCache.put(key,type);
@@ -83,21 +86,22 @@ public class EntityCache {
         }
     }
 
-    public String getSelection(String key,String defaultValue){
+    public String getSelection(Long key,String defaultValue){
         synchronized (selectionCache){
-            String selection = selectionCache.get(key);
-            if (selection == null){
-                return defaultValue;
+            if (key != null){
+                String selection = selectionCache.get(key);
+                if (selection == null){
+                    return defaultValue;
+                }
+                return selection;
             }
-            return selection;
+            return null;
         }
     }
-    public void setSelection(String key,String selection){
+    public void setSelection(Long key,String selection){
         synchronized (selectionCache) {
             if (selection == null){
-//                Logger.logInfoMessage("Removing key ["+key+"] From Selection Cache Size["+selectionCache.size()+"]");
                 selectionCache.remove(key);
-//                Logger.logInfoMessage("Selection Cache Size["+selectionCache.size()+"] after removal");
             }
             else {
                 selectionCache.put(key,selection);
@@ -105,21 +109,22 @@ public class EntityCache {
         }
     }
 
-    public String getMarket(String key,String defaultValue){
+    public String getMarket(Long key,String defaultValue){
         synchronized (marketCache){
-            String market = marketCache.get(key);
-            if (market == null){
-                return defaultValue;
+            if (key != null){
+                String market = marketCache.get(key);
+                if (market == null){
+                    return defaultValue;
+                }
+                return market;
             }
-            return market;
+            return null;
         }
     }
-    public void setMarket(String key,String market){
+    public void setMarket(Long key,String market){
         synchronized (marketCache) {
             if (market == null){
-//                Logger.logInfoMessage("Removing key ["+key+"] From Market Cache Size["+marketCache.size()+"]");
                 marketCache.remove(key);
-//                Logger.logInfoMessage("Market Cache Size["+marketCache.size()+"] after removal");
             }
             else {
                 marketCache.put(key,market);
@@ -127,21 +132,22 @@ public class EntityCache {
         }
     }
 
-    public String getEvent(String key,String defaultValue){
+    public String getEvent(Long key,String defaultValue){
         synchronized (eventCache){
-            String event = eventCache.get(key);
-            if (event == null){
-                return defaultValue;
+            if (key != null){
+                String event = eventCache.get(key);
+                if (event == null){
+                    return defaultValue;
+                }
+                return event;
             }
-            return event;
+            return null;
         }
     }
-    public void setEvent(String key,String event){
+    public void setEvent(Long key,String event){
         synchronized (eventCache) {
             if (event == null){
-//                Logger.logInfoMessage("Removing key ["+key+"] From Event Cache Size["+eventCache.size()+"]");
                 eventCache.remove(key);
-//                Logger.logInfoMessage("Event Cache Size["+eventCache.size()+"] after removal");
             }
             else {
                 eventCache.put(key,event);
@@ -150,7 +156,7 @@ public class EntityCache {
     }
 
 
-    public void printCacheCounts(){
+    public synchronized void printCacheCounts(){
         Logger.logInfoMessage("Category ["+categoryCache.size()+"]\n");
         Logger.logInfoMessage("Class ["+classCache.size()+"]\n");
         Logger.logInfoMessage("Type ["+typeCache.size()+"]\n");

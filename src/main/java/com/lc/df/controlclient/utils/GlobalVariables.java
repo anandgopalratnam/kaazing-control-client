@@ -21,7 +21,6 @@ public class GlobalVariables
 	public static ArrayList<String> KAFKA_CONSUMER_CATEGORY_EXCLUSION_LIST = new ArrayList<String>();
 	public static Map<String,String> KAFKA_CONSUMER_ADDITONAL_PROPS = new HashMap<String, String>();
 
-	public static String KAFKA_CACHE_TOPICS = null;
 	public static String KAFKA_CACHE_TOPIC_CONSUMER_GROUP = null;
 	
 	public static String KAFKA_PRODUCER_NODELIST = null;
@@ -35,6 +34,15 @@ public class GlobalVariables
 	public static String KAFKA_PRODUCER_KEYSERIALIZER = null;
 	public static String KAFKA_PRODUCER_VALUESERIALIZER = null;
 	public static Map<String,String> KAFKA_PRODUCER_ADDITONAL_PROPS = new HashMap<String, String>();
+
+	public static String KAFKA_CATEGORIES_TOPIC=null;
+	public static String KAFKA_CLASSES_TOPIC=null;
+	public static String KAFKA_TYPES_TOPIC=null;
+	public static String KAFKA_EVENTS_TOPIC=null;
+	public static String KAFKA_MARKETS_TOPIC=null;
+	public static String KAFKA_SELECTIONS_TOPIC=null;
+	public static String KAFKA_INPLAY_TOPIC=null;
+
 	
 	public static void setVariables(String name)
 	{
@@ -95,11 +103,23 @@ public class GlobalVariables
 			Logger.logInfoMessage("Set value for kafka.consumer" +
 					".category-exclusion-list = ["+KAFKA_CONSUMER_CATEGORY_EXCLUSION_LIST+"]");
 
-
-			KAFKA_CACHE_TOPICS = PropertiesUtil.getProperty("kafka.consumer.cache.topics");
-			Logger.logInfoMessage("Set value for kafka.consumer.cache.topics = ["+KAFKA_CACHE_TOPICS+"]");
 			KAFKA_CACHE_TOPIC_CONSUMER_GROUP = PropertiesUtil.getProperty("kafka.consumer.cache.group");
 			Logger.logInfoMessage("Set value for kafka.consumer.cache.group = ["+KAFKA_CACHE_TOPIC_CONSUMER_GROUP+"]");
+
+			KAFKA_CATEGORIES_TOPIC = PropertiesUtil.getProperty("kafka.categories.topic");
+			Logger.logInfoMessage("Set value for kafka.categories.topic = ["+KAFKA_CATEGORIES_TOPIC+"]");
+			KAFKA_CLASSES_TOPIC = PropertiesUtil.getProperty("kafka.classes.topic");
+			Logger.logInfoMessage("Set value for kafka.classes.topic = ["+KAFKA_CLASSES_TOPIC+"]");
+			KAFKA_TYPES_TOPIC = PropertiesUtil.getProperty("kafka.types.topic");
+			Logger.logInfoMessage("Set value for kafka.types.topic = ["+KAFKA_TYPES_TOPIC+"]");
+			KAFKA_EVENTS_TOPIC = PropertiesUtil.getProperty("kafka.events.topic");
+			Logger.logInfoMessage("Set value for kafka.events.topic = ["+KAFKA_EVENTS_TOPIC+"]");
+			KAFKA_MARKETS_TOPIC = PropertiesUtil.getProperty("kafka.markets.topic");
+			Logger.logInfoMessage("Set value for kafka.markets.topic = ["+KAFKA_MARKETS_TOPIC+"]");
+			KAFKA_SELECTIONS_TOPIC = PropertiesUtil.getProperty("kafka.selections.topic");
+			Logger.logInfoMessage("Set value for kafka.selections.topic = ["+KAFKA_SELECTIONS_TOPIC+"]");
+			KAFKA_INPLAY_TOPIC = PropertiesUtil.getProperty("kafka.inplay.topic");
+			Logger.logInfoMessage("Set value for kafka.inplay.topic = ["+KAFKA_INPLAY_TOPIC+"]");
 
 		}
 		catch(IllegalStateException ise)

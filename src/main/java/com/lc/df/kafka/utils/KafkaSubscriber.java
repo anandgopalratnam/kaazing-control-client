@@ -58,7 +58,7 @@ public class KafkaSubscriber
             kRecord.setTimestamp(record.timestamp());
             recordList.add(kRecord);
         }
-        if (GlobalVariables.KAFKA_CONSUMER_SLEEP > 0)
+        if (recordList.size() == 0 && GlobalVariables.KAFKA_CONSUMER_SLEEP > 0)
         {
             Utils.sleep(GlobalVariables.KAFKA_CONSUMER_SLEEP);
         }

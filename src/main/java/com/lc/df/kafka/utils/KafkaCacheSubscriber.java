@@ -6,6 +6,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.TopicPartition;
+import org.springframework.aop.framework.adapter.GlobalAdvisorAdapterRegistry;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,7 +30,12 @@ public class KafkaCacheSubscriber
         
         consumer = new KafkaConsumer<Object,Object>(props);
         List<TopicPartition> partitions = new ArrayList<TopicPartition>();
-        String[] topicArray = GlobalVariables.KAFKA_CACHE_TOPICS.split(",");
+        String[] topicArray = new String[]{GlobalVariables.KAFKA_CATEGORIES_TOPIC,
+                                            GlobalVariables.KAFKA_CLASSES_TOPIC,
+                                            GlobalVariables.KAFKA_TYPES_TOPIC,
+                                            GlobalVariables.KAFKA_EVENTS_TOPIC,
+                                            GlobalVariables.KAFKA_MARKETS_TOPIC,
+                                            GlobalVariables.KAFKA_SELECTIONS_TOPIC};
         for (int t = 0; t < topicArray.length ; t++) {
             for (int i = 0; i < GlobalVariables.KAFKA_CONSUMER_TOPIC_PARTITIONS; i++) {
                 partitions.add(new TopicPartition(topicArray[t], i));
@@ -51,7 +57,7 @@ public class KafkaCacheSubscriber
             kRecord.setTimestamp(record.timestamp());
            recordList.add(kRecord);
         }
-        if (GlobalVariables.KAFKA_CONSUMER_SLEEP > 0)
+        if (recordList.size() == 0 && GlobalVariables.KAFKA_CONSUMER_SLEEP > 0)
         {
             Utils.sleep(GlobalVariables.KAFKA_CONSUMER_SLEEP);
         }
